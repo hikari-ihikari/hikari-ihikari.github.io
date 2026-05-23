@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Webフィルタによりブロックされました</title>
+  <link rel="icon" href="C:\Users\s0009911\Desktop\shield_red_16x16.png"/>
+  <style>
+.loading-icon {
+  box-sizing: border-box;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  box-shadow:
+    0 -30px 0 #eee,     /*  上  */
+    21px -21px 0 #ddd,  /* 右上 */
+    30px 0 0 #ccc,      /*  右  */
+    21px 21px 0 #bbb,   /* 右下 */
+    0 30px 0 #aaa,      /*  下  */
+    -21px 21px 0 #999,  /* 左下 */
+    -30px 0 0 #666,     /*  左  */
+    -21px -21px 0 #000; /* 左上 */
+  animation: rotate 1s steps(8) 0s infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/****** Base style. ******/
+body {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 32px;
+}
+
+.lns-container {
+  margin: auto;
+  padding: 60px 20px;
+  max-width: 600px;
+}
+
+.lns-message-container {
+  color: #707070;
+  border-bottom: solid 1px #707070;
+}
+
+.lns-description-container {
+  font-size: 0.7em;
+  color: #a0a0a0;
+}
+
+#lns-deny-url {
+  margin-top: 60px;
+  overflow: scroll;
+  word-break: break-word;
+  max-height: 340px;
+}
+
+#lns-deny-url::-webkit-scrollbar {
+  display: none;
+}
+
+#lns-deny-url { font-size: 20.2px;
+ }
+
+.lns-deny {
+  font-size: 20.2px;
+}
+.lns-deny p {
+  margin: 0.3em 0;
+}
+
+.lns-deny-message {
+  font-size: 20px;
+vertical-align:100%;
+margin: 0 0px;
+}
+
+
+
+.lns-deny-message p {
+  margin: 0.3em 0;
+}
+#バー {width: 300px ;
+height: 40px ;
+}
+</style>
+</head>
+
+<body>
+<script>
+const uttr = new SpeechSynthesisUtterance("あなたは機密文書にアクセスしようとしました。５秒以内にログアウトしてください、５、、４、、３、、２、、１、、ゼロ。しない場合は直ちにエージェントが派遣されあなたを消します。")
+uttr.rate = 2.2
+  // 発言を再生 (発言キューに発言を追加)
+  speechSynthesis.speak(uttr)
+</script>
+<script>
+var 経度="0"
+var 緯度="0"
+var url="https://www.google.co.jp/?safe=active&ssui=on"
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//
+//  【 現在地の取得サンプル 】  http://www.cman.jp
+//
+//     cmanPosGet() を実行すると、現在位置の取得を行います。
+//
+//     【デモ用】の箇所は、でも（サンプル）の表示用です。
+//      このため、使用に合わせた変更が必要です。
+//
+//   商用,改変,再配布はすべて自由ですですが、動作保証はありません
+//
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+//==================================================================================================
+//  位置取得 成功時に実行される
+//==================================================================================================
+function cmanGetOk(argPos){
+
+    // --- 取得した値を出力 ------------------------------------------------------------------------
+    document.getElementById("getLatitude").innerHTML         = "緯度:"+argPos.coords.latitude;          // 緯度
+ 緯度 = argPos.coords.latitude;
+    document.getElementById("getLongitude").innerHTML        = "経度:"+argPos.coords.longitude;         // 経度
+ 経度 = argPos.coords.longitude;
+    document.getElementById("getAccuracy").innerHTML         = argPos.coords.accuracy;          // 緯度・経度の誤差
+    document.getElementById("getAltitude").innerHTML         = argPos.coords.altitude;          // 高度
+    document.getElementById("getAltitudeAccuracy").innerHTML = argPos.coords.altitudeAccuracy;  // 高度の誤差
+    document.getElementById("getHeading").innerHTML          = argPos.coords.heading;           // 方角(0:北)
+    document.getElementById("getSpeed").innerHTML            = argPos.coords.speed;             // 速度
+    // ---【デモ用】取得した位置の地図リンク編集 ---------------------------------------------------
+  var　地図因数=   'http://maps.google.com/maps?q=' + argPos.coords.latitude + ',' + argPos.coords.longitude;
+ window.open(地図因数);
+
+    // ---【デモ用】結果表示制御 -------------------------------------------------------------------
+    cmanGetDisplayCtrl('OK');
+}
+
+
+//==================================================================================================
+//  位置取得 失敗時に実行される
+//==================================================================================================
+function cmanGetErr(argErr){
+    var wErrMsg = "";
+    switch(argErr.code){
+        case 1 : wErrMsg = "位置情報の利用が許可されていません";break;
+        case 2 : wErrMsg = "デバイスの位置が判定できません";break;
+        case 3 : wErrMsg = "タイムアウトしました";break;
+    }
+    if(wErrMsg == ""){wErrMsg = argErr.message;} 
+
+    // --- エラーメッセージ出力 --------------------------------------------------------------------
+    document.getElementById("getErrMag").innerHTML = wErrMsg;
+
+    // ---【デモ用】結果表示制御 -------------------------------------------------------------------
+    cmanGetDisplayCtrl('ERR');
+}
+
+//==================================================================================================
+//  位置取得 実行
+//==================================================================================================
+function cmanPosGet(){
+
+    // --- ブラウザが対応しているかチェック --------------------------------------------------------
+    if (typeof navigator.geolocation === 'undefined') {
+        document.getElementById("getErrMag").innerHTML = 'ブラウザが位置情報取得に対応していません';
+        cmanGetDisplayCtrl('ERR');
+        return false;
+    }
+
+    // --- オプション設定 --------------------------------------------------------------------------
+    var wOptions = {
+        "enableHighAccuracy": true,                       // true : 高精度
+        "timeout": 10000,                                 // タイムアウト : ミリ秒
+        "maximumAge": 0,                                  // データをキャッシュ時間 : ミリ秒
+    };
+
+    // --- 位置取得 --------------------------------------------------------------------------------
+    navigator.geolocation.getCurrentPosition(cmanGetOk,   // 位置取得成功時に実行される関数
+                                             cmanGetErr,  // 位置取得失敗時に実行される関数
+                                             wOptions );  // オプション
+
+    // ---【デモ用】結果表示制御 -------------------------------------------------------------------
+    cmanGetDisplayCtrl('START');
+    return true;
+}
+
+//==================================================================================================
+//  【デモ用】結果表示制御 (デモ画面の表示制御用のため、サンプル動作には関係ありません)
+//==================================================================================================
+function cmanGetDisplayCtrl(argMsg){
+
+    // --- 結果表示制御 ----------------------------------------------------------------------------
+    document.getElementById("getOut-area").style.display     = '';
+    switch(argMsg){
+        case 'OK' :
+            document.getElementById("getShorichu").style.display = 'none';
+            document.getElementById("getOut-err-area").style.display = 'none';
+            document.getElementById("getOut-ok-area").style.display  = '';
+            break;
+        case 'ERR' :
+            document.getElementById("getShorichu").style.display = 'none';
+            document.getElementById("getOut-err-area").style.display = '';
+            document.getElementById("getOut-ok-area").style.display  = 'none';
+            break;
+        default :
+            document.getElementById("getShorichu").style.display = '';
+            document.getElementById("getOut-err-area").style.display = 'none';
+            document.getElementById("getOut-ok-area").style.display  = 'none'
+            break;
+    }
+
+    // --- 結果エリアにゆっくりスクロール ----------------------------------------------------------
+    //     https://web-designer.cman.jp/javascript_ref/window/link_scroll/  を参照
+    cmanLinkScroll('getOut-area');
+}
+
+
+
+</script>
+<div class="lns-container">
+  <div class="lns-message-container">
+    <p>このページは表示できません。</p>
+  </div>
+  <div class="lns-description-container">
+    <p>このページは以下のカテゴリに該当したためWebフィルタにより閲覧が制限されています。</p>
+    <div id="lns-deny-url" class="lns-deny">https://www.sbineotrade.jp/stock/beginner/what-is-stock.html</div>
+    <div id="lns-deny-categories" class="lns-deny">                         </div>
+    <div id="lns-deny-message" class="lns-deny-message"><p>該当カテゴリー:日本尊厳維持局機密文書</div><br>
+<progress max="100" value="1" id="バー"></progress>
+<script>
+var startDt = new Date();
+var dt = new Date();
+var user=0;
+var endDt = new Date(startDt.getTime() + 5* 200); // 3分後
+var cnt = 1;
+  var id = setInterval(function(){
+user=cnt*2
+cnt = cnt+1
+    console.log(cnt);
+document.getElementById("バー").value=user
+    // 現在日時と終了日時を比較
+    dt = new Date();
+    if(dt.getTime() >= endDt.getTime()){
+      clearInterval(id);
+      console.log("Finish!");
+document.getElementById('ぐるぐる').style.visibility='hidden'
+var ユーザー = document.getElementById('ユーザー情報');
+var title = document.getElementById('タイトル');
+var title情報="ユーザー情報"
+var 情報=navigator.userAgent;
+ユーザー.innerHTML=情報
+title.innerHTML=title情報
+document.getElementById('バー').style.display='none'
+document.getElementById("グーグル").innerHTML         = "あなたが今いる場所"
+window.alert("位置情報を許可してください");
+cmanPosGet();
+
+    }
+  }, 10);
+
+document.getElementById('inline-frame').style.display='none'
+</script>
+
+<i class="loading-icon" id="ぐるぐる"></i>
+<h2 id="タイトル"></h2>
+<div id="ユーザー情報"></div>
+<div><div id="グーグルo"><b><font size="6" id="グーグル"></font></b></div>
+<div id="getLatitude"></div><div id="getLongitude"></div>
+  </div>
+</div>
+</body>
+</html>
