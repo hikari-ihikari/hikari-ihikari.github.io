@@ -3,6 +3,9 @@
     <head>
         <title>学級日誌</title>
         <style>
+            html{
+                height:100%;
+            }
             body{
                 background-image: url('https://picsum.photos/id/885/1920/1080?grayscale&bulr=10');
                 background-size: cover;
@@ -11,6 +14,10 @@
   
                 /* ★スクロールしても背景画像を画面に固定する */
                 background-attachment: fixed;
+                min-height: 100vh; /* 古いブラウザ用のバックアップ */
+                min-height: 100dvh;
+                display:flex;
+                flex-direction:column;
             }
             .top-banner {
                 position: fixed;
@@ -89,8 +96,9 @@
                 );
                 background-size:100% 32px;
 
-                min-height: 100vh; /* 古いブラウザ用のバックアップ */
-                min-height: 100dvh;
+                flex-grow:1;
+
+                
             }
         </style>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
