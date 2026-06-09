@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合格発表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --crimson: #9B1C1C; --crimson-mid: #DC2626; --crimson-light: #FEF2F2;
+    --ink: #1C1917; --ink-light: #57534E; --paper: #FAFAF9;
+    --border: #D6D3D1; --border-dark: #A8A29E;
+  }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+  header { background: var(--ink); color: #fff; text-align: center; padding: 3rem 1rem 2.5rem; }
+  header::after { content: ''; display: block; width: 60px; height: 3px; background: var(--crimson-mid); margin: 1.2rem auto 0; }
+  .header-label { font-family: 'Noto Serif JP', serif; font-size: 0.72rem; letter-spacing: 0.35em; color: #A8A29E; margin-bottom: 0.6rem; }
+  header h1 { font-family: 'Noto Serif JP', serif; font-size: 2.4rem; font-weight: 700; letter-spacing: 0.2em; }
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3);
+    color: #FCA5A5; font-size: 0.72rem; letter-spacing: 0.1em;
+    padding: 0.3rem 0.75rem; border-radius: 99px; margin-top: 1rem;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #FCA5A5; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+  .meta-bar { max-width: 720px; margin: 2rem auto 0; padding: 0 1.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.5rem; }
+  .meta-left { font-family: 'Noto Serif JP', serif; }
+  .round-label { font-size: 0.8rem; color: var(--ink-light); margin-bottom: 0.2rem; }
+  .round-title { font-size: 1.4rem; color: var(--ink); }
+  .meta-right { font-size: 0.82rem; color: var(--ink-light); text-align: right; }
+  .notice { max-width: 720px; margin: 1rem auto 0; padding: 0 1.5rem; }
+  .notice p { font-size: 0.8rem; color: var(--ink-light); background: #F5F5F4; border-left: 3px solid var(--border-dark); padding: 0.6rem 0.8rem; border-radius: 0 4px 4px 0; }
+  .divider { max-width: 720px; margin: 1.2rem auto; border: none; border-top: 1px solid var(--border); }
+  .grid-wrap { max-width: 720px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+  .number-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: 10px; }
+  .number-cell {
+    background: #fff; border: 1px solid var(--border); border-radius: 4px;
+    padding: 0.8rem 0.5rem; text-align: center;
+    font-family: 'Noto Serif JP', serif; font-size: 1.15rem; color: var(--ink);
+    opacity: 0; transform: translateY(6px); animation: fadeUp 0.3s ease forwards;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .number-cell:hover { border-color: var(--crimson); color: var(--crimson); }
+  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+  .empty-state { text-align: center; padding: 5rem 1rem; color: var(--ink-light); }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .loading { text-align: center; padding: 4rem 1rem; color: var(--ink-light); font-size: 0.9rem; }
+  footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--border-dark); border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header>
+  <p class="header-label">LOTTERY RESULT</p>
+  <h1>合　格　発　表</h1>
+  <div class="live-badge"><span class="live-dot"></span>LIVE</div>
+</header>
+
+<div id="app"><div class="loading">読み込み中...</div></div>
+
+<footer>リアルタイム同期中 &mdash; 自動更新されます</footer>
+
+<script>
+const SUPABASE_URL = 'https://lqzleairwoupzdbkhwtj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxemxlYWlyd291cHpkYmtod3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzExNzgsImV4cCI6MjA5NjYwNzE3OH0.WchooBAaiXhjcHtE54sQLBmDddiz730ySYlwgdlhlMI';
+const TABLE = 'lottery_results';
+const hdrs = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+let currentRound = null;
+
+async function fetchLatest() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=round.desc&limit=1`, { headers: hdrs });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.length > 0 ? data[0] : null;
+}
+
+function render(data) {
+  const app = document.getElementById('app');
+  if (!data) {
+    app.innerHTML = `<div class="empty-state"><div class="icon">📄</div><p>まだ合格発表が行われていません。<br>しばらくお待ちください。</p></div>`;
+    return;
+  }
+  const d = new Date(data.created_at);
+  const fmt = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  // 合格者は「当選順」ではなくシャッフルした連番で表示（番号は秘匿、合否はサイトBで確認）
+  const cells = Array.from({length: data.winner_count}, (_, i) =>
+    `<div class="number-cell" style="animation-delay:${i*28}ms">合格 ${String(i+1).padStart(3,'0')}</div>`
+  ).join('');
+  app.innerHTML = `
+    <div class="meta-bar">
+      <div class="meta-left">
+        <div class="round-label">第 ${data.round} 回抽選</div>
+        <div class="round-title">合格者数：${data.winner_count} 名</div>
+      </div>
+      <div class="meta-right">発表日時：${fmt}</div>
+    </div>
+    <div class="notice"><p>※ 受験番号は非公開です。合否の確認は「合否確認ページ」から受験番号を入力してください。</p></div>
+    <hr class="divider">
+    <div class="grid-wrap"><div class="number-grid">${cells}</div></div>`;
+  currentRound = data.round;
+}
+
+async function init() {
+  try { render(await fetchLatest()); }
+  catch(e) { document.getElementById('app').innerHTML = `<div class="empty-state"><p>読み込みに失敗しました。<br>${e.message}</p></div>`; }
+}
+
+function connectRealtime() {
+  const ws = new WebSocket(`wss://lqzleairwoupzdbkhwtj.supabase.co/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`);
+  ws.onopen = () => ws.send(JSON.stringify({
+    topic: `realtime:public:${TABLE}`, event: 'phx_join',
+    payload: { config: { postgres_changes: [{ event: '*', schema: 'public', table: TABLE }] } }, ref: '1'
+  }));
+  ws.onmessage = async (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.event === 'postgres_changes' || msg.payload?.data?.type) {
+      const data = await fetchLatest();
+      if (data && data.round !== currentRound) render(data);
+    }
+  };
+  ws.onclose = () => setTimeout(connectRealtime, 3000);
+  ws.onerror = () => ws.close();
+}
+
+init();
+connectRealtime();
+setInterval(async () => {
+  try { const data = await fetchLatest(); if (data && data.round !== currentRound) render(data); } catch {}
+}, 30000);
+</script>
+</body>
+</html>

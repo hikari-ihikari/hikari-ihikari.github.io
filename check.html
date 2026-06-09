@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合否確認｜合格発表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --crimson: #9B1C1C; --crimson-mid: #DC2626; --crimson-light: #FEF2F2;
+    --ink: #1C1917; --ink-light: #57534E; --paper: #FAFAF9;
+    --border: #D6D3D1; --border-dark: #A8A29E;
+    --green: #166534; --green-bg: #F0FDF4; --green-border: #86EFAC;
+  }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+  header { background: var(--ink); color: #fff; text-align: center; padding: 2.5rem 1rem 2rem; }
+  header::after { content: ''; display: block; width: 50px; height: 3px; background: var(--crimson-mid); margin: 1.2rem auto 0; }
+  .header-label { font-family: 'Noto Serif JP', serif; font-size: 0.72rem; letter-spacing: 0.35em; color: #A8A29E; margin-bottom: 0.5rem; }
+  header h1 { font-family: 'Noto Serif JP', serif; font-size: 1.8rem; font-weight: 700; letter-spacing: 0.15em; }
+
+  .wrap { max-width: 480px; margin: 3rem auto; padding: 0 1.5rem 4rem; }
+
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 2rem; }
+  .card h2 { font-family: 'Noto Serif JP', serif; font-size: 1rem; margin-bottom: 0.5rem; }
+  .card p { font-size: 0.85rem; color: var(--ink-light); margin-bottom: 1.5rem; line-height: 1.7; }
+
+  .input-row { display: flex; gap: 0.75rem; }
+  .input-row input[type="text"] {
+    flex: 1; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 1.3rem; font-family: 'Noto Serif JP', serif; text-align: center;
+    letter-spacing: 0.15em; background: var(--paper); color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .input-row input:focus { outline: none; border-color: var(--crimson); }
+  .btn-check {
+    padding: 0.75rem 1.5rem; background: var(--crimson); color: #fff; border: none;
+    border-radius: 4px; font-family: 'Noto Serif JP', serif; font-size: 1rem;
+    letter-spacing: 0.05em; cursor: pointer; transition: background 0.2s; white-space: nowrap;
+  }
+  .btn-check:hover { background: #7F1D1D; }
+  .btn-check:disabled { background: var(--border-dark); cursor: not-allowed; }
+
+  /* 結果表示 */
+  .result-box {
+    margin-top: 2rem; border-radius: 8px; padding: 2rem 1.5rem;
+    text-align: center; display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .result-box.pass {
+    display: block;
+    background: var(--green-bg); border: 2px solid var(--green-border);
+  }
+  .result-box.fail {
+    display: block;
+    background: #F9FAFB; border: 1px solid var(--border);
+  }
+  .result-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+  .result-label {
+    font-family: 'Noto Serif JP', serif; font-size: 2rem; font-weight: 700;
+    letter-spacing: 0.15em; margin-bottom: 0.5rem;
+  }
+  .result-box.pass .result-label { color: var(--green); }
+  .result-box.fail .result-label { color: var(--ink-light); }
+  .result-num { font-size: 0.85rem; color: var(--ink-light); margin-top: 0.25rem; }
+  .result-sub { font-size: 0.82rem; color: var(--ink-light); margin-top: 0.75rem; line-height: 1.7; }
+
+  .status-msg { margin-top: 1rem; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.82rem; display: none; }
+  .status-msg.error { display: block; background: var(--crimson-light); border: 1px solid #FCA5A5; color: var(--crimson); }
+  .status-msg.info { display: block; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
+
+  .round-info { margin-top: 1.5rem; font-size: 0.8rem; color: var(--ink-light); text-align: center; }
+
+  footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--border-dark); border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<header>
+  <p class="header-label">RESULT CHECK</p>
+  <h1>合否確認</h1>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2>受験番号を入力してください</h2>
+    <p>抽選券に記載された受験番号を入力して「確認する」を押してください。</p>
+    <div class="input-row">
+      <input type="text" id="inputNum" placeholder="例：1042" maxlength="10" inputmode="numeric"
+        onkeydown="if(event.key==='Enter') checkResult()">
+      <button class="btn-check" id="btnCheck" onclick="checkResult()">確認する</button>
+    </div>
+    <div class="status-msg" id="statusMsg"></div>
+    <div class="result-box" id="resultBox">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-label" id="resultLabel"></div>
+      <div class="result-num" id="resultNum"></div>
+      <div class="result-sub" id="resultSub"></div>
+    </div>
+    <div class="round-info" id="roundInfo"></div>
+  </div>
+</div>
+
+<footer>合格発表システム</footer>
+
+<script>
+const SUPABASE_URL = 'https://lqzleairwoupzdbkhwtj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxemxlYWlyd291cHpkYmtod3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzExNzgsImV4cCI6MjA5NjYwNzE3OH0.WchooBAaiXhjcHtE54sQLBmDddiz730ySYlwgdlhlMI';
+const TABLE = 'lottery_results';
+const hdrs = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
+let latestData = null;
+
+async function fetchLatest() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=round.desc&limit=1`, { headers: hdrs });
+  if (!res.ok) throw new Error(await res.text());
+  const data = await res.json();
+  return data.length > 0 ? data[0] : null;
+}
+
+async function hashNumber(num) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(num)));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function checkResult() {
+  const input = document.getElementById('inputNum').value.trim();
+  if (!input) return showStatus('error', '受験番号を入力してください。');
+
+  const btn = document.getElementById('btnCheck');
+  btn.disabled = true;
+  btn.textContent = '確認中...';
+  hideResult();
+  showStatus('info', '確認中...');
+
+  try {
+    if (!latestData) latestData = await fetchLatest();
+    if (!latestData) {
+      showStatus('error', 'まだ抽選が行われていません。');
+      return;
+    }
+
+    const hash = await hashNumber(input);
+    const isPass = latestData.hashes.includes(hash);
+
+    const d = new Date(latestData.created_at);
+    const fmt = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    document.getElementById('roundInfo').textContent = `第${latestData.round}回抽選（${fmt}）の結果`;
+
+    hideStatus();
+    showResult(isPass, input);
+  } catch(e) {
+    showStatus('error', '確認に失敗しました: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '確認する';
+  }
+}
+
+function showResult(isPass, num) {
+  const box = document.getElementById('resultBox');
+  box.className = `result-box ${isPass ? 'pass' : 'fail'}`;
+  document.getElementById('resultIcon').textContent = isPass ? '🎉' : '😔';
+  document.getElementById('resultLabel').textContent = isPass ? '合　格' : '不合格';
+  document.getElementById('resultNum').textContent = `受験番号：${num}`;
+  document.getElementById('resultSub').textContent = isPass
+    ? 'おめでとうございます！景品の受け取りは係員にお申し付けください。'
+    : '残念ながら今回は外れでした。またのご参加をお待ちしています。';
+}
+
+function hideResult() { document.getElementById('resultBox').className = 'result-box'; }
+function showStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = `status-msg ${type}`; el.textContent = msg;
+}
+function hideStatus() { document.getElementById('statusMsg').className = 'status-msg'; }
+
+// リアルタイム同期（新しい抽選が来たらキャッシュをクリア）
+function connectRealtime() {
+  const ws = new WebSocket(`wss://lqzleairwoupzdbkhwtj.supabase.co/realtime/v1/websocket?apikey=${SUPABASE_KEY}&vsn=1.0.0`);
+  ws.onopen = () => ws.send(JSON.stringify({
+    topic: `realtime:public:${TABLE}`, event: 'phx_join',
+    payload: { config: { postgres_changes: [{ event: '*', schema: 'public', table: TABLE }] } }, ref: '1'
+  }));
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (msg.event === 'postgres_changes' || msg.payload?.data?.type) {
+      latestData = null; // キャッシュをクリア→次回確認時に再取得
+      document.getElementById('roundInfo').textContent = '⚡ 新しい抽選結果が更新されました';
+      hideResult();
+    }
+  };
+  ws.onclose = () => setTimeout(connectRealtime, 3000);
+  ws.onerror = () => ws.close();
+}
+
+connectRealtime();
+fetchLatest().then(d => {
+  latestData = d;
+  if (d) {
+    const dt = new Date(d.created_at);
+    const fmt = `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
+    document.getElementById('roundInfo').textContent = `第${d.round}回抽選（${fmt}）の結果`;
+  }
+}).catch(() => {});
+</script>
+</body>
+</html>
