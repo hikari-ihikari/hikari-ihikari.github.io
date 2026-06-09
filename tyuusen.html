@@ -9,21 +9,17 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-family: sans-serif;
 }
 
 .card {
-.container {
   width: 260px;
   height: 180px;
   perspective: 1800px;
   position: relative;
   overflow: hidden; /* ←はみ出し防止（重要） */
-  cursor: pointer;
 }
 
 /* 下 */
-/* 奥のテキスト */
 .bottom {
   position: absolute;
   inset: 0;
@@ -52,8 +48,6 @@ body {
 
 /* 面 */
 .face {
-/* SVG */
-svg {
   position: absolute;
   inset: 0;
   backface-visibility: hidden;
@@ -92,18 +86,12 @@ svg {
 .card:hover .slice3 {
   transform: rotateX(-140deg) scaleY(0.85);
   transition: 4s cubic-bezier(0.2,0.8,0.2,1);
-/* 紙 */
-path {
-  fill: white;
-  stroke: #ccc;
-  transition: d 0.5s cubic-bezier(0.2,0.8,0.2,1);
 }
 </style>
 </head>
 <body>
 
 <div class="card">
-<div class="container">
   <div class="bottom">中のテキスト</div>
 
   <div class="slice slice1">
@@ -122,42 +110,7 @@ path {
     </div>
   </div>
 
-  <svg viewBox="0 0 260 180">
-    <path id="page"
-      d="
-      M0,0 
-      L260,0 
-      L260,180 
-      Q130,180 0,180 
-      Z"
-    />
-  </svg>
 </div>
-
-<script>
-const container = document.querySelector(".container");
-const page = document.getElementById("page");
-
-container.addEventListener("mouseenter", () => {
-  page.setAttribute("d", `
-    M0,0 
-    L260,0 
-    L260,60 
-    Q130,140 0,60 
-    Z
-  `);
-});
-
-container.addEventListener("mouseleave", () => {
-  page.setAttribute("d", `
-    M0,0 
-    L260,0 
-    L260,180 
-    Q130,180 0,180 
-    Z
-  `);
-});
-</script>
 
 </body>
 </html>
