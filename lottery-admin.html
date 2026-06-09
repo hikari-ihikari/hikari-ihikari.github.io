@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合格発表</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --crimson: #9B1C1C;
+    --crimson-light: #FEF2F2;
+    --crimson-mid: #DC2626;
+    --gold: #92400E;
+    --ink: #1C1917;
+    --ink-light: #44403C;
+    --paper: #FAFAF9;
+    --paper-dark: #F5F5F4;
+    --border: #D6D3D1;
+    --border-dark: #A8A29E;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    background: var(--ink);
+    color: #fff;
+    text-align: center;
+    padding: 2.5rem 1rem 2rem;
+    position: relative;
+  }
+  header::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--crimson-mid);
+    margin: 1.2rem auto 0;
+  }
+  .header-label {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: #A8A29E;
+    margin-bottom: 0.6rem;
+  }
+  header h1 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    background: none;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--ink-light);
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active {
+    color: var(--crimson);
+    border-bottom-color: var(--crimson);
+    font-weight: 500;
+  }
+  .tab-btn:hover:not(.active) {
+    color: var(--ink);
+    background: var(--paper-dark);
+  }
+
+  /* ===== PANELS ===== */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ===== ADMIN PANEL ===== */
+  .admin-wrap {
+    max-width: 600px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+  }
+  .form-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+  }
+  .form-row label {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    white-space: nowrap;
+    min-width: 80px;
+  }
+  .form-row input[type="number"],
+  .form-row input[type="text"] {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .form-row input:focus {
+    outline: none;
+    border-color: var(--crimson);
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--crimson);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #7F1D1D; }
+  .btn-secondary {
+    padding: 0.6rem 1.2rem;
+    background: none;
+    color: var(--crimson);
+    border: 1px solid var(--crimson);
+    border-radius: 4px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-secondary:hover { background: var(--crimson-light); }
+  .btn-danger {
+    padding: 0.6rem 1.2rem;
+    background: none;
+    color: #9B1C1C;
+    border: 1px solid #FCA5A5;
+    border-radius: 4px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-danger:hover { background: var(--crimson-light); }
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .status-msg {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    display: none;
+  }
+  .status-msg.success {
+    display: block;
+    background: #F0FDF4;
+    border: 1px solid #86EFAC;
+    color: #166534;
+  }
+  .status-msg.error {
+    display: block;
+    background: var(--crimson-light);
+    border: 1px solid #FCA5A5;
+    color: var(--crimson);
+  }
+  .current-info {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+  .current-info strong { color: var(--ink); }
+  .file-info {
+    font-size: 0.8rem;
+    color: var(--ink-light);
+    margin-top: 0.5rem;
+    font-family: monospace;
+    background: var(--paper-dark);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+
+  /* ===== RESULT PANEL ===== */
+  .result-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+  .result-meta {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .result-meta .round-badge {
+    display: inline-block;
+    background: var(--crimson);
+    color: #fff;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    padding: 0.3rem 1rem;
+    border-radius: 2px;
+    margin-bottom: 0.8rem;
+    font-family: 'Noto Serif JP', serif;
+  }
+  .result-meta h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: var(--ink);
+  }
+  .result-meta .count {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    margin-top: 0.4rem;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* 番号グリッド */
+  .number-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 10px;
+  }
+  .number-cell {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeUp 0.35s ease forwards;
+  }
+  .number-cell:hover {
+    border-color: var(--crimson);
+    color: var(--crimson);
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--ink-light);
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--border-dark);
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="header-label">LOTTERY SYSTEM</p>
+  <h1>合格発表</h1>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('result')">📋 合格者一覧</button>
+  <button class="tab-btn" onclick="switchTab('admin')">⚙️ 管理・抽選</button>
+</div>
+
+<!-- ===== 合格者一覧パネル ===== -->
+<div id="panel-result" class="panel active">
+  <div class="result-wrap">
+    <div class="result-meta" id="resultMeta" style="display:none">
+      <div class="round-badge" id="roundBadge">第1回</div>
+      <h2>合格者番号一覧</h2>
+      <p class="count" id="resultCount"></p>
+    </div>
+    <div class="divider" id="resultDivider" style="display:none"></div>
+    <div id="numberGrid" class="number-grid"></div>
+    <div class="empty-state" id="emptyState">
+      <div class="icon">📄</div>
+      <p>まだ抽選が行われていません。<br>「管理・抽選」タブから抽選を実行してください。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 管理パネル ===== -->
+<div id="panel-admin" class="panel">
+  <div class="admin-wrap">
+
+    <div class="card">
+      <h2>現在の状態</h2>
+      <div class="current-info" id="currentInfo">データなし</div>
+    </div>
+
+    <div class="card">
+      <h2>抽選設定</h2>
+      <div class="form-row">
+        <label>受験番号 最小</label>
+        <input type="number" id="numMin" value="1001" min="1">
+      </div>
+      <div class="form-row">
+        <label>受験番号 最大</label>
+        <input type="number" id="numMax" value="1100" min="1">
+      </div>
+      <div class="form-row">
+        <label>当選人数</label>
+        <input type="number" id="numWinners" value="30" min="1">
+      </div>
+      <button class="btn-primary" onclick="runLottery()">🎯 抽選を実行する</button>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>JSONファイル</h2>
+      <p style="font-size:0.82rem; color:var(--ink-light); margin-bottom:1rem; line-height:1.7">
+        抽選後にJSONをダウンロードして <code>results.json</code> という名前でGitHub Pagesのルートに配置してください。<br>
+        合否確認サイト（サイトB）もこのファイルを参照します。
+      </p>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="downloadJSON()" id="btnDownload" disabled>⬇ JSONをダウンロード</button>
+        <button class="btn-secondary" onclick="loadJSON()">📂 JSONを読み込む</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileLoad(event)">
+      </div>
+      <div class="file-info" id="fileInfo" style="display:none"></div>
+      <div class="btn-row">
+        <button class="btn-danger" onclick="resetData()">🗑 データをリセット</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>文化祭抽選システム &mdash; GitHub Pages 対応版</footer>
+
+<script>
+const STORAGE_KEY = 'lottery_data';
+
+let state = loadState();
+renderAll();
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveState(data) {
+  state = data;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0) === (name === 'result'));
+  });
+  document.getElementById('panel-result').classList.toggle('active', name === 'result');
+  document.getElementById('panel-admin').classList.toggle('active', name === 'admin');
+  if (name === 'result') renderResult();
+}
+
+async function hashNumber(num) {
+  const msgBuffer = new TextEncoder().encode(String(num));
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function runLottery() {
+  const min = parseInt(document.getElementById('numMin').value);
+  const max = parseInt(document.getElementById('numMax').value);
+  const count = parseInt(document.getElementById('numWinners').value);
+
+  if (isNaN(min) || isNaN(max) || isNaN(count)) {
+    showStatus('error', '値を正しく入力してください。');
+    return;
+  }
+  if (min >= max) {
+    showStatus('error', '最小値は最大値より小さくしてください。');
+    return;
+  }
+  const range = max - min + 1;
+  if (count > range) {
+    showStatus('error', `当選人数(${count})が受験番号の範囲(${range})を超えています。`);
+    return;
+  }
+
+  const pool = Array.from({length: range}, (_, i) => min + i);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const winners = pool.slice(0, count).sort((a, b) => a - b);
+
+  const hashes = await Promise.all(winners.map(hashNumber));
+  const round = state ? (state.round + 1) : 1;
+
+  const data = {
+    round,
+    min, max, count,
+    winners,
+    hashes,
+    timestamp: new Date().toISOString()
+  };
+  saveState(data);
+  document.getElementById('btnDownload').disabled = false;
+  showStatus('success', `第${round}回の抽選完了！${count}名が当選しました。`);
+  renderAll();
+}
+
+function renderAll() {
+  renderResult();
+  renderAdminInfo();
+}
+
+function renderResult() {
+  const grid = document.getElementById('numberGrid');
+  const empty = document.getElementById('emptyState');
+  const meta = document.getElementById('resultMeta');
+  const divider = document.getElementById('resultDivider');
+
+  if (!state) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    meta.style.display = 'none';
+    divider.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  meta.style.display = 'block';
+  divider.style.display = 'block';
+  document.getElementById('roundBadge').textContent = `第${state.round}回`;
+  document.getElementById('resultCount').textContent = `合格者数：${state.winners.length}名`;
+
+  grid.innerHTML = '';
+  state.winners.forEach((num, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'number-cell';
+    cell.textContent = String(num).padStart(4, '0');
+    cell.style.animationDelay = `${i * 30}ms`;
+    grid.appendChild(cell);
+  });
+}
+
+function renderAdminInfo() {
+  const el = document.getElementById('currentInfo');
+  if (!state) {
+    el.textContent = 'まだ抽選は行われていません。';
+    return;
+  }
+  const d = new Date(state.timestamp);
+  const fmt = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  el.innerHTML = `
+    <strong>第${state.round}回</strong>（${fmt} 実施）<br>
+    受験番号範囲：${state.min}〜${state.max}<br>
+    当選人数：<strong>${state.winners.length}名</strong>
+  `;
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = `status-msg ${type}`;
+  el.textContent = msg;
+}
+
+function downloadJSON() {
+  if (!state) return;
+  const out = {
+    round: state.round,
+    timestamp: state.timestamp,
+    count: state.winners.length,
+    hashes: state.hashes
+  };
+  const blob = new Blob([JSON.stringify(out, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'results.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+
+  const info = document.getElementById('fileInfo');
+  info.style.display = 'block';
+  info.textContent = `results.json をダウンロードしました。GitHub Pages のルートディレクトリに配置してください。`;
+}
+
+function loadJSON() {
+  document.getElementById('fileInput').click();
+}
+
+function handleFileLoad(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.hashes || !Array.isArray(data.hashes)) throw new Error('形式が不正です');
+      saveState({
+        round: data.round || 1,
+        min: data.min || 0,
+        max: data.max || 0,
+        count: data.count || data.hashes.length,
+        winners: data.winners || [],
+        hashes: data.hashes,
+        timestamp: data.timestamp || new Date().toISOString()
+      });
+      document.getElementById('btnDownload').disabled = false;
+      showStatus('success', 'JSONを読み込みました。');
+      renderAll();
+    } catch (err) {
+      showStatus('error', `読み込み失敗：${err.message}`);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetData() {
+  if (!confirm('本当にリセットしますか？抽選データがすべて消えます。')) return;
+  saveState(null);
+  localStorage.removeItem(STORAGE_KEY);
+  state = null;
+  document.getElementById('btnDownload').disabled = true;
+  document.getElementById('fileInfo').style.display = 'none';
+  showStatus('success', 'データをリセットしました。');
+  renderAll();
+}
+</script>
+</body>
+</html>
