@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>縦めくり（曲がる風）</title>
+<title>ベロン捲り</title>
 <style>
 body {
   background: #eee;
@@ -13,16 +13,14 @@ body {
   font-family: sans-serif;
 }
 
-/* コンテナ */
 .card {
   position: relative;
   width: 260px;
   height: 160px;
-  perspective: 1200px;
+  perspective: 1400px; /* 奥行き強化 */
   cursor: pointer;
 }
 
-/* 下側（めくった後に出る） */
 .bottom {
   position: absolute;
   width: 100%;
@@ -35,38 +33,38 @@ body {
   font-size: 20px;
 }
 
-/* めくる紙 */
+/* 上に軸 */
 .page {
   position: absolute;
   width: 100%;
   height: 100%;
   background: white;
-  transform-origin: bottom center;
+  transform-origin: top center; /* ←ここ重要 */
   transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
 }
 
-/* 曲がり演出（影） */
+/* 曲がり感（影） */
 .page::before {
   content: "";
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, rgba(0,0,0,0.25), transparent);
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 60%);
   opacity: 0;
-  transition: opacity 0.5s;
+  transition: opacity 0.4s;
 }
 
-/* めくり時 */
+/* ベロン */
 .card:hover .page {
-  transform: rotateX(-160deg) scaleY(0.85);
+  transform: rotateX(-140deg) scaleY(0.65); /* ←ここがキモ */
 }
 
-/* めくり時に影表示 */
+/* 影ON */
 .card:hover .page::before {
   opacity: 1;
 }
@@ -75,8 +73,8 @@ body {
 <body>
 
 <div class="card">
-  <div class="bottom">出てきたテキスト</div>
-  <div class="page">めくってね</div>
+  <div class="bottom">現れたテキスト</div>
+  <div class="page">めくって！</div>
 </div>
 
 </body>
