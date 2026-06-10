@@ -58,6 +58,8 @@
   left: 0;
   transform-origin: top;
   transform-style: preserve-3d;
+  transform: translateZ(0);
+  pointer-events: auto;
 }
 
 /* 親子構造 */
@@ -87,6 +89,11 @@
   transform: rotateX(180deg);
 }
 
+.card{
+  touch-action: manipulation;
+  positoin: relative;
+}
+
 /* ===== アニメーション ===== */
 
 /* 上 */
@@ -107,11 +114,6 @@
   transition: 6s cubic-bezier(0.2,0.8,0.2,1);
 }
 
-.touch-layer{
-  position:absolute;
-  inset: 0;
-  z-index: 100;
-}
 </style>
 </head>
 <body>
@@ -123,7 +125,6 @@
 <div id="app"><div class="loading">読み込み中...</div></div>
 
 <footer>リアルタイム同期中 &mdash; 自動更新されます</footer>
-<div class="touch-layer"></div>
   <div class="slice slice1">
     <div class="face front"> </div>
     <div class="face back"> </div>
@@ -206,10 +207,10 @@ setInterval(async () => {
   try { const data = await fetchLatest(); if (data && data.round !== currentRound) render(data); } catch {}
 }, 30000);
 
-const layer = document.querySelector(".touch-layer");
+const card = document.querySelector(".card");
 
 layer.addEventListener("pointerdown", () => {
-  document.querySelector(".card").classList.add("open");
+  card.classList.add("open");
 });
 </script>
 </body>
