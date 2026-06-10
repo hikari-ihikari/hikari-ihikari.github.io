@@ -109,7 +109,7 @@
 </style>
 </head>
 <body>
-<div class="card">
+<div class="card" ,id="card">
 <header>
   <h1>合　格　発　表</h1>
 </header>
@@ -199,9 +199,9 @@ setInterval(async () => {
   try { const data = await fetchLatest(); if (data && data.round !== currentRound) render(data); } catch {}
 }, 30000);
 
-const card = document.querySelector(".card");
+const cad = document.getElementById("card");
 
-card.addEventListener("touchstart", () => {
+cad.addEventListener("pointerdown", () => {
   card.classList.add("open");
 });
 </script>
