@@ -64,25 +64,26 @@ body {
 /* ===== アニメーション ===== */
 
 /* 上 */
-.body:hover .slice1 {
+.card:hover .slice1 {
   transform: rotateX(120deg);
   transition: 6s cubic-bezier(0.2,0.8,0.2,1);
 }
 
 /* 中 */
-.body:hover .slice2 {
+.card:hover .slice2 {
   transform: rotateX(120deg);
   transition: 8s cubic-bezier(0.2,0.8,0.2,1);
 }
 
 /* 下 */
-.body:hover .slice3 {
+.card:hover .slice3 {
   transform: rotateX(140deg) scaleY(0.85);
   transition: 6s cubic-bezier(0.2,0.8,0.2,1);
 }
 </style>
 </head>
 <body>
+  <div id="card">
   <div class="bottom">中のテキスト</div>
 
   <div class="slice slice1">
@@ -97,6 +98,7 @@ body {
         <div class="face front">下</div>
         <div class="face back">裏</div>
       </div>
+  </div>
   </div>
 
 </div>
