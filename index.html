@@ -123,6 +123,7 @@
 <div id="app"><div class="loading">読み込み中...</div></div>
 
 <footer>リアルタイム同期中 &mdash; 自動更新されます</footer>
+<div class="touch-layer"></div>
   <div class="slice slice1">
     <div class="face front"> </div>
     <div class="face back"> </div>
@@ -205,10 +206,10 @@ setInterval(async () => {
   try { const data = await fetchLatest(); if (data && data.round !== currentRound) render(data); } catch {}
 }, 30000);
 
-const card = document.getElementById("card");
+const layer = document.querySelector(".touch-layer");
 
-cadr.addEventListener("pointerdown", () => {
-  card.classList.add("open");
+layer.addEventListener("pointerdown", () => {
+  document.querySelector(".card").classList.add("open");
 });
 </script>
 </body>
