@@ -90,19 +90,19 @@
 /* ===== アニメーション ===== */
 
 /* 上 */
-.card:hover .slice1 {
+.card.open.slice1 {
   transform: rotateX(120deg);
   transition: 6s cubic-bezier(0.2,0.8,0.2,1);
 }
 
 /* 中 */
-.card:hover .slice2 {
+.card.open.slice2 {
   transform: rotateX(120deg);
   transition: 8s cubic-bezier(0.2,0.8,0.2,1);
 }
 
 /* 下 */
-.card:hover .slice3 {
+.card.open.slice3 {
   transform: rotateX(140deg) scaleY(0.85);
   transition: 6s cubic-bezier(0.2,0.8,0.2,1);
 }
@@ -198,6 +198,12 @@ connectRealtime();
 setInterval(async () => {
   try { const data = await fetchLatest(); if (data && data.round !== currentRound) render(data); } catch {}
 }, 30000);
+
+const card = document.querySelector(".card");
+
+card.addEventListener("click", () => {
+  card.classList.add("open");
+});
 </script>
 </body>
 </html>
