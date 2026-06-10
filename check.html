@@ -160,12 +160,11 @@ async function checkResult() {
 function showResult(isPass, num) {
   const box = document.getElementById('resultBox');
   box.className = `result-box ${isPass ? 'pass' : 'fail'}`;
-  document.getElementById('resultIcon').textContent = isPass ? '🎉' : '😔';
   document.getElementById('resultLabel').textContent = isPass ? '合　格' : '不合格';
   document.getElementById('resultNum').textContent = `受験番号：${num}`;
   document.getElementById('resultSub').textContent = isPass
-    ? 'おめでとうございます！景品の受け取りは係員にお申し付けください。'
-    : '残念ながら今回は外れでした。またのご参加をお待ちしています。';
+    ? '合格おめでとうございます！入学祝いの受け取りは受験票をもって係員にお申し付けください。'
+    : '残念ながら今回は不合格です。またのご参加をお待ちしています。';
 }
 
 function hideResult() { document.getElementById('resultBox').className = 'result-box'; }
