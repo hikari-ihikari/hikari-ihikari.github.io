@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理ページ｜合格発表抽選システム</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --crimson: #9B1C1C; --crimson-mid: #DC2626; --crimson-light: #FEF2F2;
+    --ink: #1C1917; --ink-light: #57534E; --paper: #FAFAF9; --paper-dark: #F5F5F4;
+    --border: #D6D3D1; --border-dark: #A8A29E;
+  }
+  body { font-family: 'Noto Sans JP', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+  header { background: var(--ink); color: #fff; text-align: center; padding: 2rem 1rem 1.8rem; }
+  header::after { content: ''; display: block; width: 50px; height: 3px; background: var(--crimson-mid); margin: 1rem auto 0; }
+  .header-label { font-size: 0.72rem; letter-spacing: 0.3em; color: #A8A29E; margin-bottom: 0.5rem; }
+  header h1 { font-family: 'Noto Serif JP', serif; font-size: 1.6rem; letter-spacing: 0.15em; }
+  .wrap { max-width: 580px; margin: 2.5rem auto; padding: 0 1.5rem 4rem; }
+  .card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .card h2 { font-family: 'Noto Serif JP', serif; font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--border); }
+  .form-row { display: flex; gap: 0.75rem; margin-bottom: 0.75rem; align-items: center; }
+  .form-row label { font-size: 0.85rem; color: var(--ink-light); white-space: nowrap; min-width: 90px; }
+  .form-row input[type="number"] {
+    flex: 1; padding: 0.55rem 0.75rem; border: 1px solid var(--border); border-radius: 4px;
+    font-size: 0.95rem; font-family: 'Noto Sans JP', sans-serif; background: var(--paper); color: var(--ink);
+  }
+  .form-row input:focus { outline: none; border-color: var(--crimson); }
+  .btn-primary {
+    width: 100%; padding: 0.85rem; background: var(--crimson); color: #fff; border: none;
+    border-radius: 4px; font-family: 'Noto Serif JP', serif; font-size: 1rem;
+    letter-spacing: 0.1em; cursor: pointer; transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #7F1D1D; }
+  .btn-primary:disabled { background: var(--border-dark); cursor: not-allowed; }
+  .btn-danger {
+    padding: 0.6rem 1.2rem; background: none; color: var(--crimson);
+    border: 1px solid #FCA5A5; border-radius: 4px; font-size: 0.85rem; cursor: pointer;
+  }
+  .btn-danger:hover { background: var(--crimson-light); }
+  .status-msg { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.85rem; display: none; }
+  .status-msg.success { display: block; background: #F0FDF4; border: 1px solid #86EFAC; color: #166534; }
+  .status-msg.error { display: block; background: var(--crimson-light); border: 1px solid #FCA5A5; color: var(--crimson); }
+  .status-msg.info { display: block; background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E40AF; }
+  .info-box { font-size: 0.85rem; color: var(--ink-light); line-height: 1.9; }
+  .info-box strong { color: var(--ink); }
+  .history-item { padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; }
+  .history-item:last-child { border-bottom: none; }
+  .round-tag { display: inline-block; background: var(--crimson); color: #fff; font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 2px; margin-right: 0.5rem; font-family: 'Noto Serif JP', serif; }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background: #D6D3D1; }
+  .conn-dot.ok { background: #22C55E; }
+  .conn-dot.err { background: #EF4444; }
+  .conn-status { font-size: 0.8rem; color: var(--ink-light); display: flex; align-items: center; margin-bottom: 1rem; }
+  #historyList { max-height: 220px; overflow-y: auto; }
+  .empty-history { font-size: 0.85rem; color: var(--ink-light); text-align: center; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<header>
+  <p class="header-label">ADMIN</p>
+  <h1>管理・抽選ページ</h1>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <h2>接続状態</h2>
+    <div class="conn-status"><span class="conn-dot" id="connDot"></span><span id="connText">接続確認中...</span></div>
+    <div class="info-box" id="currentInfo">読み込み中...</div>
+  </div>
+
+  <div class="card">
+    <h2>抽選設定</h2>
+    <div class="form-row">
+      <label>受験番号 最小</label>
+      <input type="number" id="numMin" value="1001" min="1">
+    </div>
+    <div class="form-row">
+      <label>受験番号 最大</label>
+      <input type="number" id="numMax" value="1100" min="1">
+    </div>
+    <div class="form-row">
+      <label>当選人数</label>
+      <input type="number" id="numWinners" value="30" min="1">
+    </div>
+    <button class="btn-primary" id="btnLottery" onclick="runLottery()">🎯 抽選を実行する</button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <div class="card">
+    <h2>抽選履歴</h2>
+    <div id="historyList"><p class="empty-history">履歴なし</p></div>
+    <div style="margin-top:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+      <button class="btn-danger" onclick="resetLatest()">🗑 最新の抽選をリセット</button>
+      <button class="btn-danger" onclick="resetAll()">🗑 全データをリセット（第1回に戻す）</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const SUPABASE_URL = 'https://lqzleairwoupzdbkhwtj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxemxlYWlyd291cHpkYmtod3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwMzExNzgsImV4cCI6MjA5NjYwNzE3OH0.WchooBAaiXhjcHtE54sQLBmDddiz730ySYlwgdlhlMI';
+const TABLE = 'lottery_results';
+const headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers, ...opts });
+  if (!res.ok) throw new Error(await res.text());
+  return res.status === 204 ? null : res.json();
+}
+
+async function hashNumber(num) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(num)));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function loadHistory() {
+  try {
+    const data = await apiFetch(`${TABLE}?select=*&order=round.desc&limit=10`);
+    document.getElementById('connDot').className = 'conn-dot ok';
+    document.getElementById('connText').textContent = 'Supabase 接続OK';
+    renderHistory(data);
+    renderCurrentInfo(data);
+    return data;
+  } catch(e) {
+    document.getElementById('connDot').className = 'conn-dot err';
+    document.getElementById('connText').textContent = '接続エラー: ' + e.message;
+    return [];
+  }
+}
+
+function renderHistory(data) {
+  const el = document.getElementById('historyList');
+  if (!data || data.length === 0) { el.innerHTML = '<p class="empty-history">履歴なし</p>'; return; }
+  el.innerHTML = data.map(r => {
+    const d = new Date(r.created_at);
+    const fmt = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="history-item">
+      <div><span class="round-tag">第${r.round}回</span>${r.winner_count}名当選　${r.num_min}〜${r.num_max}</div>
+      <div style="color:var(--ink-light);font-size:0.8rem">${fmt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCurrentInfo(data) {
+  const el = document.getElementById('currentInfo');
+  if (!data || data.length === 0) { el.textContent = 'まだ抽選は行われていません。'; return; }
+  const r = data[0];
+  const d = new Date(r.created_at);
+  const fmt = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  el.innerHTML = `最新: <strong>第${r.round}回</strong>（${fmt}）<br>受験番号範囲：${r.num_min}〜${r.num_max}<br>当選人数：<strong>${r.winner_count}名</strong>`;
+}
+
+async function runLottery() {
+  const min = parseInt(document.getElementById('numMin').value);
+  const max = parseInt(document.getElementById('numMax').value);
+  const count = parseInt(document.getElementById('numWinners').value);
+  if (isNaN(min)||isNaN(max)||isNaN(count)) return showStatus('error','値を正しく入力してください。');
+  if (min >= max) return showStatus('error','最小値は最大値より小さくしてください。');
+  if (count > (max-min+1)) return showStatus('error','当選人数が受験番号の範囲を超えています。');
+
+  const btn = document.getElementById('btnLottery');
+  btn.disabled = true; btn.textContent = '抽選中...';
+  showStatus('info','抽選中です。しばらくお待ちください...');
+
+  try {
+    const pool = Array.from({length: max-min+1}, (_,i) => min+i);
+    for (let i = pool.length-1; i > 0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [pool[i],pool[j]] = [pool[j],pool[i]];
+    }
+    const winners = pool.slice(0, count).sort((a,b) => a-b);
+    const hashes = await Promise.all(winners.map(hashNumber));
+
+    const existing = await apiFetch(`${TABLE}?select=round&order=round.desc&limit=1`);
+    const round = existing && existing.length > 0 ? existing[0].round + 1 : 1;
+
+    await apiFetch(TABLE, {
+      method: 'POST',
+      body: JSON.stringify({ round, winners, hashes, winner_count: count, num_min: min, num_max: max })
+    });
+
+    showStatus('success', `第${round}回の抽選完了！${count}名が当選しました。サイトAに自動反映されます。`);
+    await loadHistory();
+  } catch(e) {
+    showStatus('error','保存に失敗しました: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = '🎯 抽選を実行する';
+  }
+}
+
+async function resetLatest() {
+  if (!confirm('最新の抽選データを削除しますか？')) return;
+  try {
+    const data = await apiFetch(`${TABLE}?select=id,round&order=round.desc&limit=1`);
+    if (!data || data.length === 0) return showStatus('error','削除するデータがありません。');
+    await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${data[0].id}`, { method: 'DELETE', headers: {...headers, 'Prefer': ''} });
+    showStatus('success', `第${data[0].round}回のデータを削除しました。`);
+    await loadHistory();
+  } catch(e) {
+    showStatus('error','削除に失敗しました: ' + e.message);
+  }
+}
+
+async function resetAll() {
+  if (!confirm('全ての抽選データを削除しますか？第1回からやり直しになります。')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=gt.0`, {
+      method: 'DELETE',
+      headers: { ...headers, 'Prefer': '' }
+    });
+    showStatus('success', '全データを削除しました。次回は第1回から始まります。');
+    await loadHistory();
+  } catch(e) {
+    showStatus('error', '削除に失敗しました: ' + e.message);
+  }
+}
+
+function showStatus(type, msg) {
+  const el = document.getElementById('statusMsg');
+  el.className = `status-msg ${type}`; el.textContent = msg;
+}
+
+loadHistory();
+</script>
+</body>
+</html>
