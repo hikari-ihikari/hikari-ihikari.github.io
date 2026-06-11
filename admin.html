@@ -91,7 +91,8 @@
     <h2>抽選履歴</h2>
     <div id="historyList"><p class="empty-history">履歴なし</p></div>
     <div style="margin-top:1rem">
-      <button class="btn-danger" onclick="resetLatest()">🗑 最新の抽選をリセット</button>
+      <button class="btn-danger" onclick="resetLatest()">最新の抽選をリセット</button>
+      <button class="btn-danger" onclick="resetAll()">全データをリセット（第1回に戻す）</button>
     </div>
   </div>
 
@@ -205,7 +206,19 @@ function showStatus(type, msg) {
   const el = document.getElementById('statusMsg');
   el.className = `status-msg ${type}`; el.textContent = msg;
 }
-
+async function resetAll() {
+  if (!confirm('全ての抽選データを削除しますか？第1回からやり直しになります。')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=gt.0`, {
+      method: 'DELETE',
+      headers: { ...headers, 'Prefer': '' }
+    });
+    showStatus('success', '全データを削除しました。次回は第1回から始まります。');
+    await loadHistory();
+  } catch(e) {
+    showStatus('error', '削除に失敗しました: ' + e.message);
+  }
+}
 loadHistory();
 </script>
 </body>
