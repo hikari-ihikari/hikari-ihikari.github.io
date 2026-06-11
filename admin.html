@@ -83,7 +83,7 @@
       <label>当選人数</label>
       <input type="number" id="numWinners" value="30" min="1">
     </div>
-    <button class="btn-primary" id="btnLottery" onclick="runLottery()">🎯 抽選を実行する</button>
+    <button class="btn-primary" id="btnLottery" onclick="runLottery()">抽選を実行する</button>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
@@ -184,7 +184,7 @@ async function runLottery() {
   } catch(e) {
     showStatus('error','保存に失敗しました: ' + e.message);
   } finally {
-    btn.disabled = false; btn.textContent = '🎯 抽選を実行する';
+    btn.disabled = false; btn.textContent = '抽選を実行する';
   }
 }
 
