@@ -189,12 +189,15 @@ async function runLottery() {
   }
 }
 
+const deleteHeaders = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };
+
 async function resetLatest() {
   if (!confirm('最新の抽選データを削除しますか？')) return;
   try {
     const data = await apiFetch(`${TABLE}?select=id,round&order=round.desc&limit=1`);
     if (!data || data.length === 0) return showStatus('error','削除するデータがありません。');
-    await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${data[0].id}`, { method: 'DELETE', headers: {...headers, 'Prefer': ''} });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${data[0].id}`, { method: 'DELETE', headers: deleteHeaders });
+    if (!res.ok) throw new Error(await res.text());
     showStatus('success', `第${data[0].round}回のデータを削除しました。`);
     await loadHistory();
   } catch(e) {
@@ -205,10 +208,8 @@ async function resetLatest() {
 async function resetAll() {
   if (!confirm('全ての抽選データを削除しますか？第1回からやり直しになります。')) return;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=gt.0`, {
-      method: 'DELETE',
-      headers: { ...headers, 'Prefer': '' }
-    });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=gte.0`, { method: 'DELETE', headers: deleteHeaders });
+    if (!res.ok) throw new Error(await res.text());
     showStatus('success', '全データを削除しました。次回は第1回から始まります。');
     await loadHistory();
   } catch(e) {
