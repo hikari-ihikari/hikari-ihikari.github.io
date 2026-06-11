@@ -208,8 +208,13 @@ async function resetLatest() {
 async function resetAll() {
   if (!confirm('全ての抽選データを削除しますか？第1回からやり直しになります。')) return;
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=gte.0`, { method: 'DELETE', headers: deleteHeaders });
-    if (!res.ok) throw new Error(await res.text());
+    // 全件のIDを取得してから1件ずつ削除
+    const data = await apiFetch(`${TABLE}?select=id&order=id.asc`);
+    if (!data || data.length === 0) return showStatus('error', '削除するデータがありません。');
+    for (const row of data) {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${row.id}`, { method: 'DELETE', headers: deleteHeaders });
+      if (!res.ok) throw new Error(await res.text());
+    }
     showStatus('success', '全データを削除しました。次回は第1回から始まります。');
     await loadHistory();
   } catch(e) {
