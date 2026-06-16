@@ -113,7 +113,7 @@
       </div>
     </div>
 
-    <button class="btn-primary" id="btnLottery" onclick="runLottery()">🎯 抽選を実行する</button>
+    <button class="btn-primary" id="btnLottery" onclick="runLottery()">抽選を実行する</button>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
@@ -121,8 +121,8 @@
     <h2>抽選履歴</h2>
     <div id="historyList"><p class="empty-history">履歴なし</p></div>
     <div style="margin-top:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
-      <button class="btn-danger" onclick="resetLatest()">🗑 最新の抽選をリセット</button>
-      <button class="btn-danger" onclick="resetAll()">🗑 全データをリセット（第1回に戻す）</button>
+      <button class="btn-danger" onclick="resetLatest()">最新の抽選をリセット</button>
+      <button class="btn-danger" onclick="resetAll()">全データをリセット（第1回に戻す）</button>
     </div>
   </div>
 
@@ -234,7 +234,7 @@ async function runLottery() {
   } catch(e) {
     showStatus('error','保存に失敗しました: ' + e.message);
   } finally {
-    btn.disabled = false; btn.textContent = '🎯 抽選を実行する';
+    btn.disabled = false; btn.textContent = '抽選を実行する';
   }
 }
 
