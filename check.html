@@ -83,8 +83,8 @@
 
 <div class="wrap">
   <div class="card">
-    <h2>受験番号を入力してください</h2>
-    <p>抽選券に記載された受験番号を入力して「確認する」を押してください。</p>
+    <h2>チケットに記載されている番号を入力してください</h2>
+    <p>チケットに記載された番号を入力して「確認する」を押してください。</p>
     <div class="input-row">
       <input type="text" id="inputNum" placeholder="例：1" maxlength="10" inputmode="numeric"
         onkeydown="if(event.key==='Enter') checkResult()">
@@ -163,7 +163,7 @@ function showResult(isPass, num) {
   document.getElementById('resultLabel').textContent = isPass ? '合　格' : '不合格';
   document.getElementById('resultNum').textContent = `受験番号：${num}`;
   document.getElementById('resultSub').textContent = isPass
-    ? '合格おめでとうございます！入学祝いの受け取りは受験票をもって係員にお申し付けください。'
+    ? '合格おめでとうございます！入学祝いの受け取りはチケットをもって2-1模擬店のところまでお越しください'
     : '残念ながら今回は不合格です。またのご参加をお待ちしています。';
 }
 
